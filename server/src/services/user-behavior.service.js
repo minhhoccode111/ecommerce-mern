@@ -1,19 +1,19 @@
-import mongoose from 'mongoose';
-import UserBehavior from '../models/user-behavior.model.js';
+import mongoose from "mongoose";
+import UserBehavior from "../models/user-behavior.model.js";
 
 const BEHAVIOR = {
-  VIEW_TIME: 'viewTime',
-  VIEW_COUNT: 'viewCount',
-  CLICK_COUNT: 'clickCount',
-  HOVER_COUNT: 'hoverCount',
-  IN_CART_COUNT: 'inCartCount',
-  BOUGHT_COUNT: 'bought'
+  VIEW_TIME: "viewTime",
+  VIEW_COUNT: "viewCount",
+  CLICK_COUNT: "clickCount",
+  HOVER_COUNT: "hoverCount",
+  IN_CART_COUNT: "inCartCount",
+  BOUGHT_COUNT: "bought",
 };
 
 export default {
   handleUserBehavior,
   handleUpdateBoughtCount,
-  getDataWithCalculateScore
+  getDataWithCalculateScore,
 };
 
 const weights = (key) => {
@@ -51,12 +51,12 @@ function isFloat(n) {
 }
 
 function isValidRating(n) {
-  return (isInt(n) || isFloat(n)) && (n >= 0 && n <= 1);
+  return (isInt(n) || isFloat(n)) && n >= 0 && n <= 1;
 }
 
 const mergeData = (prevData, newData) => {
   const mergedData = { ...prevData };
-  Object.keys(newData).forEach(key => {
+  Object.keys(newData).forEach((key) => {
     if (newData[key] !== null) {
       if (key === BEHAVIOR.IN_CART_COUNT) {
         mergedData[key] = newData[key];
@@ -70,12 +70,17 @@ const mergeData = (prevData, newData) => {
 };
 
 async function handleUserBehavior(userIdentifier, trackingData) {
-  if (!trackingData) { return; }
+  if (!trackingData) {
+    return;
+  }
   const data = Object.entries(trackingData);
 
   for (let i = 0; i < data.length; i++) {
     const [productId, behavior] = data[i];
-    const userBehavior = await UserBehavior.findOne({ userIdentifier, productId });
+    const userBehavior = await UserBehavior.findOne({
+      userIdentifier,
+      productId,
+    });
 
     if (userBehavior) {
       userBehavior.behavior = mergeData(userBehavior.behavior, behavior);
@@ -85,7 +90,7 @@ async function handleUserBehavior(userIdentifier, trackingData) {
         _id: new mongoose.Types.ObjectId(),
         userIdentifier,
         productId,
-        behavior
+        behavior,
       });
       await newUserBehavior.save();
     }
@@ -100,12 +105,15 @@ async function handleUpdateBoughtCount(userIdentifier, orderItems) {
       }
       acc[productId] += quantity;
       return acc;
-    }, {})
+    }, {}),
   );
 
   for (let i = 0; i < boughtData.length; i++) {
     const [productId, qty] = boughtData[i];
-    const userBehavior = await UserBehavior.findOne({ userIdentifier, productId });
+    const userBehavior = await UserBehavior.findOne({
+      userIdentifier,
+      productId,
+    });
 
     if (userBehavior) {
       if (userBehavior?.behavior?.[BEHAVIOR.BOUGHT_COUNT]) {
@@ -117,15 +125,17 @@ async function handleUpdateBoughtCount(userIdentifier, orderItems) {
           userBehavior.behavior = { [BEHAVIOR.BOUGHT_COUNT]: qty };
         }
       }
-      await UserBehavior.findByIdAndUpdate(userBehavior._id, { $set: { behavior: userBehavior.behavior } });
+      await UserBehavior.findByIdAndUpdate(userBehavior._id, {
+        $set: { behavior: userBehavior.behavior },
+      });
     } else {
       const newUserBehavior = new UserBehavior({
         _id: new mongoose.Types.ObjectId(),
         userIdentifier,
         productId,
         behavior: {
-          [BEHAVIOR.BOUGHT_COUNT]: qty
-        }
+          [BEHAVIOR.BOUGHT_COUNT]: qty,
+        },
       });
       await newUserBehavior.save();
     }
@@ -133,12 +143,17 @@ async function handleUpdateBoughtCount(userIdentifier, orderItems) {
 }
 
 async function getDataWithCalculateScore() {
-  const userBehaviorData = await UserBehavior.find({ productId: { $ne: 'undefined' } }).sort({ userData: 1 }).lean().exec();
+  const userBehaviorData = await UserBehavior.find({
+    productId: { $ne: "undefined" },
+  })
+    .sort({ userData: 1 })
+    .lean()
+    .exec();
   const groupByLst = userBehaviorData
     .map((item) => ({
       productId: item.productId,
       userData: item.userIdentifier,
-      score: calculateScore(item.behavior)
+      score: calculateScore(item.behavior),
     }))
     .reduce((acc, item) => {
       if (!acc[item.userData]) {
@@ -156,13 +171,13 @@ async function getDataWithCalculateScore() {
     result = result.concat(
       lst.reduce((acc, { productId, userData, score }) => {
         const rating = Number.parseFloat(
-          (Number.parseFloat(score) / maxScore).toFixed(5)
+          (Number.parseFloat(score) / maxScore).toFixed(5),
         );
         if (!Number.isNaN(rating)) {
           acc.push({ productId, userData, rating });
         }
         return acc;
-      }, [])
+      }, []),
     );
   });
 

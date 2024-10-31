@@ -2,16 +2,16 @@ const removeMultiSpace = (schema, _options) => {
   let fields = [];
 
   schema.eachPath(function (pathname, schemaType) {
-    if (schemaType.instance === 'String' && schemaType.options.trim) {
+    if (schemaType.instance === "String" && schemaType.options.trim) {
       fields.push(pathname);
     }
   });
 
-  schema.pre('save', async function (next) {
+  schema.pre("save", async function (next) {
     const doc = this;
     for (let f of fields) {
       if (doc[f]) {
-        doc[f] = doc[f].replace(/\s+/g, ' ').trim();
+        doc[f] = doc[f].replace(/\s+/g, " ").trim();
       }
     }
     next();

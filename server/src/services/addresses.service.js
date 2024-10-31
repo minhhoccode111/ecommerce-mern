@@ -1,18 +1,20 @@
-import mongoose from 'mongoose';
-import User from '../models/user.model.js';
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
+import mongoose from "mongoose";
+import User from "../models/user.model.js";
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
 
 export default {
   getList,
   add,
   update,
   setDefault,
-  remove
-}
+  remove,
+};
 
 async function getUser(userId, includeAddress = false) {
   const projection = { _id: 1, phone: 1, firstName: 1, lastName: 1 };
-  if (includeAddress) { projection.addresses = 1; }
+  if (includeAddress) {
+    projection.addresses = 1;
+  }
 
   const user = await User.findById(userId, projection).lean().exec();
   if (!user) {
@@ -24,32 +26,32 @@ async function getUser(userId, includeAddress = false) {
 
 function initAddress(data, user) {
   delete data._id;
-  
+
   let address = {};
   if (!data.phone && user.phone) {
     data.phone = user.phone;
   } else if (!data.phone) {
-    throw ApiErrorUtils.simple('Phone is required!', 400);
+    throw ApiErrorUtils.simple("Phone is required!", 400);
   }
 
   if (!data.name && (user.firstName || user.lastName)) {
     data.name = `${user.firstName} ${user.lastName}`.trim();
   } else if (!data.name) {
-    throw ApiErrorUtils.simple('Name is required!', 400);
+    throw ApiErrorUtils.simple("Name is required!", 400);
   }
 
   const missingFields = [];
-  ['street', 'ward', 'district', 'province'].forEach(field => {
+  ["street", "ward", "district", "province"].forEach((field) => {
     if (!data?.[field]) {
       missingFields.push(field);
     }
   });
   if (missingFields.length) {
-    throw ApiErrorUtils.simple(`${missingFields.join(', ')} is required!`, 400);
+    throw ApiErrorUtils.simple(`${missingFields.join(", ")} is required!`, 400);
   }
 
   return { ...data, ...address };
-};
+}
 
 /**
  * Get list addresses of user
@@ -57,10 +59,11 @@ function initAddress(data, user) {
  */
 async function getList(userId) {
   const result = await User.findById(userId, { addresses: 1 })
-    .lean({ virtuals: true }).exec();
+    .lean({ virtuals: true })
+    .exec();
 
   if (!result) {
-    throw ApiErrorUtils.simple('User not found or id not valid!', 404);
+    throw ApiErrorUtils.simple("User not found or id not valid!", 404);
   }
 
   // sort by isDefault
@@ -74,8 +77,6 @@ async function getList(userId) {
     }
   });
 }
-
-
 
 /**
  * Add address for user
@@ -93,14 +94,14 @@ async function add(userId, data) {
   const result = await User.findByIdAndUpdate(
     user._id,
     { $push: { addresses: { _id: newId, ...validData } } },
-    { new: true, fields: 'addresses' }
+    { new: true, fields: "addresses" },
   );
 
   if (result?.errors?.addresses) {
     throw ApiErrorUtils.simple(result.errors.addresses.message, 400);
   }
 
-  return result?.addresses?.find(address => address._id.equals(newId));
+  return result?.addresses?.find((address) => address._id.equals(newId));
 }
 
 /**
@@ -114,9 +115,11 @@ async function update(userId, addressId, updatedData) {
   const user = await getUser(userId, true);
 
   const addressList = user.addresses;
-  const updateIndex = addressList.findIndex(address => address._id.equals(addressId));
+  const updateIndex = addressList.findIndex((address) =>
+    address._id.equals(addressId),
+  );
   if (updateIndex === -1) {
-    throw ApiErrorUtils.simple('Address not found!', 404);
+    throw ApiErrorUtils.simple("Address not found!", 404);
   }
 
   const currentAddress = addressList[updateIndex];
@@ -125,32 +128,34 @@ async function update(userId, addressId, updatedData) {
   const result = await User.findByIdAndUpdate(
     user._id,
     { $set: { addresses: addressList } },
-    { new: true, fields: 'addresses' }
+    { new: true, fields: "addresses" },
   );
 
   if (result?.errors?.addresses) {
     throw ApiErrorUtils.simple(result.errors.addresses.message, 400);
   }
 
-  return result?.addresses?.find(address => address._id.equals(addressId));
+  return result?.addresses?.find((address) => address._id.equals(addressId));
 }
 
 async function setDefault(userId, addressId) {
   const user = await getUser(userId, true);
 
   const addressList = user.addresses;
-  const updateIndex = addressList.findIndex(address => address._id.equals(addressId));
+  const updateIndex = addressList.findIndex((address) =>
+    address._id.equals(addressId),
+  );
   if (updateIndex === -1) {
-    throw ApiErrorUtils.simple('Address not found!', 404);
+    throw ApiErrorUtils.simple("Address not found!", 404);
   }
 
-  addressList.forEach(address => address.isDefault = false);
+  addressList.forEach((address) => (address.isDefault = false));
   user.addresses[updateIndex].isDefault = true;
 
   const result = await User.findByIdAndUpdate(
     user._id,
     { $set: { addresses: user.addresses } },
-    { new: true, fields: 'addresses' }
+    { new: true, fields: "addresses" },
   );
   return result;
 }
@@ -165,23 +170,25 @@ async function remove(userId, addressId) {
   const user = await getUser(userId, true);
 
   const addressList = user.addresses;
-  const updateIndex = addressList.findIndex(address => address._id.equals(addressId));
+  const updateIndex = addressList.findIndex((address) =>
+    address._id.equals(addressId),
+  );
   if (updateIndex === -1) {
-    throw ApiErrorUtils.simple('Address not found!', 404);
+    throw ApiErrorUtils.simple("Address not found!", 404);
   }
 
   addressList.splice(updateIndex, 1);
   const result = await User.findByIdAndUpdate(
     user._id,
     { $set: { addresses: addressList } },
-    { new: true, fields: 'addresses' }
+    { new: true, fields: "addresses" },
   );
 
   if (result?.errors?.addresses) {
     throw ApiErrorUtils.simple(result.errors.addresses.message, 400);
   }
 
-  if (result?.addresses?.findIndex(a => a._id.equals(addressId)) === -1) {
+  if (result?.addresses?.findIndex((a) => a._id.equals(addressId)) === -1) {
     return true;
   }
 

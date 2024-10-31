@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import Brand from '../models/brand.model.js';
-import responseDef from '../responseCode.js';
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
-import StringUtils from '../utils/StringUtils.js';
-import productsService from './products.service.js';
+import mongoose from "mongoose";
+import Brand from "../models/brand.model.js";
+import responseDef from "../responseCode.js";
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
+import StringUtils from "../utils/StringUtils.js";
+import productsService from "./products.service.js";
 
 export default {
   getAll,
@@ -14,20 +14,22 @@ export default {
   incCountProduct,
   decCountProduct,
   hidden,
-  remove
+  remove,
 };
 
-const SELECTED_FIELDS = '_id order slug name desc headQuarters country image countProduct isHide createdAt updatedAt';
+const SELECTED_FIELDS =
+  "_id order slug name desc headQuarters country image countProduct isHide createdAt updatedAt";
 
 async function getAll(fields = SELECTED_FIELDS, filter = {}) {
-  if (fields.indexOf(',') > -1) {
-    fields = fields.split(',').join(' ');
+  if (fields.indexOf(",") > -1) {
+    fields = fields.split(",").join(" ");
   }
 
   return Brand.find(filter)
     .select(fields)
     .sort({ countProduct: -1 })
-    .lean().exec();
+    .lean()
+    .exec();
 }
 
 /**
@@ -49,12 +51,14 @@ async function getOne(identity, needLean = true) {
 
 /**
  * Get id and check exist
- * @param {*} identity 
+ * @param {*} identity
  * @returns _id of document if found, otherwise null
  */
 async function getId(identity) {
-  const filter = StringUtils.isUUID(identity) ? { _id: identity } : { slug: identity };
-  const result = await Brand.findOne(filter).select('_id').lean().exec();
+  const filter = StringUtils.isUUID(identity)
+    ? { _id: identity }
+    : { slug: identity };
+  const result = await Brand.findOne(filter).select("_id").lean().exec();
   return result ? result._id : null;
 }
 
@@ -69,7 +73,7 @@ async function create(data, createdBy = null) {
   const brand = new Brand({
     _id: new mongoose.Types.ObjectId(),
     order,
-    ...data
+    ...data,
   });
 
   if (createdBy) {
@@ -88,10 +92,16 @@ async function create(data, createdBy = null) {
  */
 
 async function update(identity, updatedData, updatedBy = null) {
-  if (updatedBy) { updatedData.updatedBy = updatedBy; }
+  if (updatedBy) {
+    updatedData.updatedBy = updatedBy;
+  }
   const currentBrand = await getOne(identity);
 
-  const updatedBrand = await Brand.findByIdAndUpdate(currentBrand._id, updatedData, { new: true });
+  const updatedBrand = await Brand.findByIdAndUpdate(
+    currentBrand._id,
+    updatedData,
+    { new: true },
+  );
   if (updatedBrand) {
     return updatedBrand;
   } else {
@@ -103,14 +113,22 @@ async function incCountProduct(identity) {
   const filter = StringUtils.isUUID(identity)
     ? { _id: identity }
     : { slug: identity };
-  await Brand.findOneAndUpdate(filter, { $inc: { countProduct: 1 } }, { new: false, timestamps: null });
+  await Brand.findOneAndUpdate(
+    filter,
+    { $inc: { countProduct: 1 } },
+    { new: false, timestamps: null },
+  );
 }
 
 async function decCountProduct(identity) {
   const filter = StringUtils.isUUID(identity)
     ? { _id: identity }
     : { slug: identity };
-  await Brand.findOneAndUpdate(filter, { $inc: { countProduct: -1 } }, { new: false, timestamps: null });
+  await Brand.findOneAndUpdate(
+    filter,
+    { $inc: { countProduct: -1 } },
+    { new: false, timestamps: null },
+  );
 }
 
 /**
@@ -124,7 +142,7 @@ async function hidden(identity) {
     return Brand.findByIdAndUpdate(
       brand._id,
       { isHide: !brand.isHide },
-      { new: true }
+      { new: true },
     );
   }
   return null;

@@ -1,11 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-import productsService from './products.service.js';
-import Category from '../models/category.model.js';
+import productsService from "./products.service.js";
+import Category from "../models/category.model.js";
 
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
-import StringUtils from '../utils/StringUtils.js';
-import responseDef from '../responseCode.js';
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
+import StringUtils from "../utils/StringUtils.js";
+import responseDef from "../responseCode.js";
 // import imagesService from './images.service.js';
 
 export default {
@@ -21,7 +21,7 @@ export default {
 };
 
 const SELECTED_FIELDS =
-  '_id slug order name desc isHide image coverImage parent children countProduct createdAt updatedAt';
+  "_id slug order name desc isHide image coverImage parent children countProduct createdAt updatedAt";
 // const POPULATE_OPTS = [
 //   {
 //     path: 'image',
@@ -35,16 +35,18 @@ const SELECTED_FIELDS =
  * @returns all categories
  */
 async function getAll(fields = SELECTED_FIELDS, filter = { parent: null }) {
-  if (fields.indexOf(',') > -1) {
-    fields = fields.split(',').join(' ');
+  if (fields.indexOf(",") > -1) {
+    fields = fields.split(",").join(" ");
   }
 
-  return Category.find(filter)
-    .select(fields)
-    // .populate(POPULATE_OPTS)
-    .sort({ order: 1 })
-    .lean()
-    .exec();
+  return (
+    Category.find(filter)
+      .select(fields)
+      // .populate(POPULATE_OPTS)
+      .sort({ order: 1 })
+      .lean()
+      .exec()
+  );
 }
 
 /**
@@ -62,12 +64,14 @@ async function getOne(identity) {
 
 /**
  * Get id and check exist
- * @param {*} identity 
+ * @param {*} identity
  * @returns _id of document if found, otherwise null
  */
 async function getId(identity) {
-  const filter = StringUtils.isUUID(identity) ? { _id: identity } : { slug: identity };
-  const result = await Category.findOne(filter).select('_id').lean().exec();
+  const filter = StringUtils.isUUID(identity)
+    ? { _id: identity }
+    : { slug: identity };
+  const result = await Category.findOne(filter).select("_id").lean().exec();
   return result ? result._id : null;
 }
 
@@ -75,7 +79,7 @@ async function getId(identity) {
  * Create category
  * @param {*} data      - Category info
  * @param {*} createdBy - Id of user created
- * @returns 
+ * @returns
  */
 async function create(data, createdBy = null) {
   const order = await Category.generateOrder();
@@ -134,9 +138,14 @@ async function update(identity, updatedData, updatedBy = null) {
     }
   }
 
-  if (updatedBy) { updatedData.updatedBy = updatedBy; }
+  if (updatedBy) {
+    updatedData.updatedBy = updatedBy;
+  }
   if (updatedData.order && updatedData.order !== currentCategory.order) {
-    await Category.findOneAndUpdate({ order: updatedData.order }, { $set: { order: currentCategory.order } });
+    await Category.findOneAndUpdate(
+      { order: updatedData.order },
+      { $set: { order: currentCategory.order } },
+    );
   } else {
     delete updatedData.order;
   }
@@ -144,7 +153,7 @@ async function update(identity, updatedData, updatedBy = null) {
   const updatedCategory = await Category.findByIdAndUpdate(
     currentCategory._id,
     updatedData,
-    { new: true }
+    { new: true },
   );
   if (updatedCategory) {
     return updatedCategory;
@@ -157,14 +166,22 @@ async function incCountProduct(identity) {
   const filter = StringUtils.isUUID(identity)
     ? { _id: identity }
     : { slug: identity };
-  await Category.findOneAndUpdate(filter, { $inc: { countProduct: 1 } }, { new: false, timestamps: null });
+  await Category.findOneAndUpdate(
+    filter,
+    { $inc: { countProduct: 1 } },
+    { new: false, timestamps: null },
+  );
 }
 
 async function decCountProduct(identity) {
   const filter = StringUtils.isUUID(identity)
     ? { _id: identity }
     : { slug: identity };
-  await Category.findOneAndUpdate(filter, { $inc: { countProduct: -1 } }, { new: false, timestamps: null });
+  await Category.findOneAndUpdate(
+    filter,
+    { $inc: { countProduct: -1 } },
+    { new: false, timestamps: null },
+  );
 }
 
 /**
@@ -178,7 +195,7 @@ async function hidden(identity) {
     return Category.findByIdAndUpdate(
       category._id,
       { isHide: !category.isHide },
-      { new: true }
+      { new: true },
     );
   }
   return null;
@@ -195,10 +212,12 @@ async function remove(identity) {
     throw ApiErrorUtils.simple2(responseDef.CATEGORY.CATEGORY_NOT_FOUND);
   }
 
-  const countProduct = await productsService.countProduct({ category: category._id });
+  const countProduct = await productsService.countProduct({
+    category: category._id,
+  });
   if (countProduct > 0) {
     throw ApiErrorUtils.simple2(responseDef.CATEGORY.CATEGORY_HAS_PRODUCT);
   }
-  
+
   return Category.findByIdAndDelete(category._id);
 }

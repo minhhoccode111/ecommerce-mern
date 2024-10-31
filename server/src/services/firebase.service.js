@@ -1,8 +1,8 @@
-import admin from 'firebase-admin';
-import configs from '../configs.js';
+import admin from "firebase-admin";
+import configs from "../configs.js";
 
 admin.initializeApp({
-  credential: admin.credential.cert(configs.firebaseServiceAccount)
+  credential: admin.credential.cert(configs.firebaseServiceAccount),
 });
 
 /**
@@ -29,11 +29,11 @@ async function verifyTokenWithPhone(phone, token) {
     return false;
   }
 
-  const phoneNumber = decodeData.phone_number.replace('+84', '0');
+  const phoneNumber = decodeData.phone_number.replace("+84", "0");
   return phoneNumber === phone;
 }
 
 export default {
   verifyToken,
-  verifyTokenWithPhone
+  verifyTokenWithPhone,
 };

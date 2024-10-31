@@ -1,15 +1,13 @@
-
-import mongoose from 'mongoose';
-import vnpayService from '../services/vnpay.service.js';
-import Order from '../models/order.model.js';
-import Payment from '../models/payment.model.js';
-import constants from '../constants.js';
-
+import mongoose from "mongoose";
+import vnpayService from "../services/vnpay.service.js";
+import Order from "../models/order.model.js";
+import Payment from "../models/payment.model.js";
+import constants from "../constants.js";
 
 export const getVnpayResult = async (req, res, next) => {
   try {
     const result = await vnpayService.checkPaymentStatus(req.query);
-    let message = '';
+    let message = "";
 
     if (result.isSuccess) {
       const paidDate = new Date(
@@ -18,7 +16,7 @@ export const getVnpayResult = async (req, res, next) => {
         Number.parseInt(result.data.payDate.substring(6, 8)),
         Number.parseInt(result.data.payDate.substring(8, 10)),
         Number.parseInt(result.data.payDate.substring(10, 12)),
-        Number.parseInt(result.data.payDate.substring(12, 14))
+        Number.parseInt(result.data.payDate.substring(12, 14)),
       );
 
       const order = await Order.findById(result.data.orderId);
@@ -39,13 +37,13 @@ export const getVnpayResult = async (req, res, next) => {
           Mã Ngân hàng thanh toán: ${result.data.bankCode}
           Mã giao dịch tại Ngân hàng: ${result.data.bankTranNo}
           Loại tài khoản/thẻ khách hàng sử dụng: ${result.data.cardType}
-        `
+        `,
       });
 
       await payment.save();
-      message = 'Thanh toán thành công';
+      message = "Thanh toán thành công";
     } else {
-      message = 'Thanh toán thất bại';
+      message = "Thanh toán thất bại";
     }
 
     // close window
@@ -55,5 +53,7 @@ export const getVnpayResult = async (req, res, next) => {
         window.open('${result.data.clientUrl}/order/${result.data.orderId}', '_self', '')
       </script>
     `);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };

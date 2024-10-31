@@ -1,7 +1,7 @@
-import constants from '../constants.js';
-import userService from '../services/user.service.js';
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
-import JwtUtils from '../utils/JwtUtils.js';
+import constants from "../constants.js";
+import userService from "../services/user.service.js";
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
+import JwtUtils from "../utils/JwtUtils.js";
 
 const roleAdmin = constants.USER.ROLE.ADMIN;
 const roleStaff = constants.USER.ROLE.STAFF;
@@ -9,9 +9,9 @@ const roleAdminOrStaff = [roleAdmin, roleStaff];
 const roleCustomer = constants.USER.ROLE.CUSTOMER;
 
 function authorized(roles = []) {
-  // roles param can be a single role string (e.g. Role.User or 'User') 
+  // roles param can be a single role string (e.g. Role.User or 'User')
   // or an array of roles (e.g. [Role.Admin, Role.User] or ['Admin', 'User'])
-  if (typeof roles === 'string') {
+  if (typeof roles === "string") {
     roles = [roles];
   }
 
@@ -20,18 +20,26 @@ function authorized(roles = []) {
     JwtUtils.jwtMiddleware,
 
     async (req, _, next) => {
-      const user = await userService.getOneById(req.user._id, '_id role', false);
+      const user = await userService.getOneById(
+        req.user._id,
+        "_id role",
+        false,
+      );
       if (!user) {
-        return next(ApiErrorUtils.simple('Unauthorized: User doesn\'t exist!', 401))
+        return next(
+          ApiErrorUtils.simple("Unauthorized: User doesn't exist!", 401),
+        );
       }
 
       if (roles.length && !roles.includes(user.role)) {
-        return next(ApiErrorUtils.simple('Unauthorized: User role is not allowed!', 401))
+        return next(
+          ApiErrorUtils.simple("Unauthorized: User role is not allowed!", 401),
+        );
       }
 
       req.user.role = user.role;
       next();
-    }
+    },
   ];
 }
 
@@ -43,7 +51,7 @@ export const isCustomer = authorized(roleCustomer);
 
 // allow unauthenticated
 export const isGuestOrAuthorized = (req, res, next) => {
-  let token = req.headers['x-access-token'] || req.headers['authorization'];
+  let token = req.headers["x-access-token"] || req.headers["authorization"];
   if (token) {
     return JwtUtils.jwtMiddleware(req, res, next);
   }
@@ -55,4 +63,4 @@ export const isGuestOrAuthorized = (req, res, next) => {
 
   req.userIdentifier = uid;
   next();
-}
+};

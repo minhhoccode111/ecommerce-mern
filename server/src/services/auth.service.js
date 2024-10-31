@@ -1,16 +1,15 @@
-import { randomBytes } from 'crypto';
-import RefreshToken from '../models/refresh-token.model.js';
-import userService from './user.service.js';
-import firebaseService from './firebase.service.js';
-import * as otpService from './otp.service.js';
-import * as mailerService from './mailer.service.js';
+import { randomBytes } from "crypto";
+import RefreshToken from "../models/refresh-token.model.js";
+import userService from "./user.service.js";
+import firebaseService from "./firebase.service.js";
+import * as otpService from "./otp.service.js";
+import * as mailerService from "./mailer.service.js";
 
-import responseDef from '../responseCode.js';
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
-import CipherUtils from '../utils/CipherUtils.js';
-import JwtUtils from '../utils/JwtUtils.js';
-import StringUtils from '../utils/StringUtils.js';
-
+import responseDef from "../responseCode.js";
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
+import CipherUtils from "../utils/CipherUtils.js";
+import JwtUtils from "../utils/JwtUtils.js";
+import StringUtils from "../utils/StringUtils.js";
 
 export default {
   googleAuthenticate,
@@ -29,10 +28,16 @@ async function googleAuthenticate(payload, ipAddress) {
     email,
     given_name: firstName,
     family_name: lastName,
-    picture: avatar
+    picture: avatar,
   } = payload;
 
-  const user = await userService.getOrCreateByGoogleId(googleId, email, firstName, lastName, avatar);
+  const user = await userService.getOrCreateByGoogleId(
+    googleId,
+    email,
+    firstName,
+    lastName,
+    avatar,
+  );
   if (!user) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.USER_NOT_FOUND);
   }
@@ -47,12 +52,12 @@ async function googleAuthenticate(payload, ipAddress) {
   return {
     user,
     jwtToken,
-    refreshToken: refreshToken.token
+    refreshToken: refreshToken.token,
   };
 }
 
 async function authenticate(username, password, ipAddress) {
-  const user = await userService.getOne(username, '-addresses');
+  const user = await userService.getOne(username, "-addresses");
   if (!user) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.USER_NOT_FOUND);
   }
@@ -72,14 +77,17 @@ async function authenticate(username, password, ipAddress) {
   return {
     user,
     jwtToken,
-    refreshToken: refreshToken.token
+    refreshToken: refreshToken.token,
   };
 }
 
 async function refreshToken(refreshToken, ipAddress) {
   const currentRfToken = await getRefreshToken(refreshToken);
   if (currentRfToken.createdByIp !== ipAddress) {
-    throw ApiErrorUtils.simple('Can\'t refresh token from other ip address', 401);
+    throw ApiErrorUtils.simple(
+      "Can't refresh token from other ip address",
+      401,
+    );
   }
 
   const { user } = currentRfToken;
@@ -99,7 +107,7 @@ async function refreshToken(refreshToken, ipAddress) {
   return {
     user: user.toObject(),
     jwtToken,
-    refreshToken: newRfToken.token
+    refreshToken: newRfToken.token,
   };
 }
 
@@ -113,9 +121,10 @@ async function revokeToken(refreshToken, ipAddress) {
 }
 
 async function getRefreshToken(token) {
-  const refreshToken = await RefreshToken
-    .findOne({ token })
-    .populate({ path: 'user', select: '-addresses -password' });
+  const refreshToken = await RefreshToken.findOne({ token }).populate({
+    path: "user",
+    select: "-addresses -password",
+  });
   if (!refreshToken || !refreshToken.isActive) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.INVALID_TOKEN);
   }
@@ -141,12 +150,15 @@ async function checkEmailOtp(email, otp) {
   if (!isValidOtp) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.INVALID_OTP);
   }
-  const otpToken = JwtUtils.generateToken({ email: email }, '1h');
+  const otpToken = JwtUtils.generateToken({ email: email }, "1h");
   return otpToken;
 }
 
 async function changePassword(userId, oldPassword, newPassword) {
-  const user = await userService.getOneById(userId, '_id password emptyPassword googleId email');
+  const user = await userService.getOneById(
+    userId,
+    "_id password emptyPassword googleId email",
+  );
   if (!user) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.USER_NOT_FOUND);
   }
@@ -166,7 +178,7 @@ async function changePassword(userId, oldPassword, newPassword) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.PASSWORD_NOT_CHANGED);
   }
 
-  if (newPassword === '' || newPassword === null) {
+  if (newPassword === "" || newPassword === null) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.PASSWORD_EMPTY);
   }
 
@@ -202,9 +214,11 @@ async function resetPassword(account, token, newPassword) {
   if (newPassword.length > 32) {
     throw ApiErrorUtils.simple2(responseDef.AUTH.PASSWORD_TOO_LONG);
   }
-  const user = await userService.getOne(account, '_id');
+  const user = await userService.getOne(account, "_id");
   const passwordHash = CipherUtils.hashPassword(newPassword);
-  const result = await userService.updateById(user._id, { password: passwordHash });
+  const result = await userService.updateById(user._id, {
+    password: passwordHash,
+  });
   return result;
 }
 
@@ -212,8 +226,8 @@ function generateRefreshToken(userId, ipAddress) {
   // create a refresh token that expires in 7 days
   return new RefreshToken({
     user: userId,
-    token: randomBytes(64).toString('hex'),
+    token: randomBytes(64).toString("hex"),
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    createdByIp: ipAddress
+    createdByIp: ipAddress,
   });
 }

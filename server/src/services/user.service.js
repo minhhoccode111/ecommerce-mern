@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import constants from '../constants.js';
-import User from '../models/user.model.js';
-import StringUtils from '../utils/StringUtils.js';
+import mongoose from "mongoose";
+import constants from "../constants.js";
+import User from "../models/user.model.js";
+import StringUtils from "../utils/StringUtils.js";
 
 export default {
   getAll,
@@ -14,20 +14,18 @@ export default {
   create,
   updateBasicInfo,
   updateById,
-  remove
+  remove,
 };
 
 const SELECTED_FIELDS =
-  '_id firstName lastName gender dob email phone username avatar role status emptyPassword createdAt updatedAt';
+  "_id firstName lastName gender dob email phone username avatar role status emptyPassword createdAt updatedAt";
 
 /**
  *
  * @returns all users
  */
 async function getAll() {
-  return User.find()
-    .sort({ createdAt: -1 })
-    .lean({ virtuals: true }).exec();
+  return User.find().sort({ createdAt: -1 }).lean({ virtuals: true }).exec();
 }
 
 /**
@@ -37,7 +35,8 @@ async function getAll() {
 async function getListByRole(role) {
   return User.find({ role })
     .sort({ createdAt: -1 })
-    .lean({ virtuals: true }).exec();
+    .lean({ virtuals: true })
+    .exec();
 }
 
 /**
@@ -51,8 +50,7 @@ async function getOne(identity, selectFields = null, needVirtuals = true) {
 
   if (StringUtils.isUUID(identity)) {
     filter._id = identity;
-  }
-  else if (StringUtils.isEmailAddress(identity)) {
+  } else if (StringUtils.isEmailAddress(identity)) {
     filter.email = identity;
   } else if (StringUtils.isPhoneNumber(identity)) {
     filter.phone = identity;
@@ -84,11 +82,14 @@ async function getOrCreateByGoogleId(
   lastName,
   avatar,
   selectFields = null,
-  needVirtuals = true
+  needVirtuals = true,
 ) {
-  const user = selectFields ?
-    await User.findOne({ googleId }).select(selectFields).lean({ virtuals: needVirtuals }).exec() :
-    await User.findOne({ googleId }).lean({ virtuals: needVirtuals }).exec();
+  const user = selectFields
+    ? await User.findOne({ googleId })
+        .select(selectFields)
+        .lean({ virtuals: needVirtuals })
+        .exec()
+    : await User.findOne({ googleId }).lean({ virtuals: needVirtuals }).exec();
 
   if (user) {
     return user;
@@ -103,19 +104,19 @@ async function getOrCreateByGoogleId(
     avatar,
     role: constants.USER.ROLE.CUSTOMER,
     emptyPassword: true,
-    status: constants.USER.STATUS.ACTIVE
+    status: constants.USER.STATUS.ACTIVE,
   });
   await newUser.save();
   return getOneById(newUser._id, selectFields, needVirtuals);
 }
 
 async function isExistEmail(email) {
-  const user = await User.findOne({ email }).select('_id');
+  const user = await User.findOne({ email }).select("_id");
   return !!user;
 }
 
 async function isExistPhone(phone) {
-  const user = await User.findOne({ phone }).select('_id');
+  const user = await User.findOne({ phone }).select("_id");
   return !!user;
 }
 
@@ -128,7 +129,7 @@ async function isExistPhone(phone) {
 async function create(data) {
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
-    ...data
+    ...data,
   });
   return user.save();
 }
@@ -161,13 +162,14 @@ async function updateBasicInfo(identity, updatedData) {
 }
 
 async function updateById(id, updated, selectFields = null) {
-  if (!selectFields) { selectFields = SELECTED_FIELDS; }
+  if (!selectFields) {
+    selectFields = SELECTED_FIELDS;
+  }
 
-  return User.findByIdAndUpdate(
-    id,
-    updated,
-    { new: true, select: selectFields }
-  );
+  return User.findByIdAndUpdate(id, updated, {
+    new: true,
+    select: selectFields,
+  });
 }
 
 /**

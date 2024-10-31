@@ -123,7 +123,9 @@ function ProductVariantInfo({ allVariants, productId, productName, onChangeVaria
         }
       }
       // eslint-disable-next-line prettier/prettier, prefer-destructuring
-      if (!defaultVariant) { defaultVariant = allVariants[0]; }
+      if (!defaultVariant) {
+        defaultVariant = allVariants[0];
+      }
       setSelectedVariant(defaultVariant);
     }
   }, [allVariants, selectedVariant]);

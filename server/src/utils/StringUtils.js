@@ -1,5 +1,5 @@
-import { convert } from 'html-to-text';
-import { REGEX } from '../constants.js';
+import { convert } from "html-to-text";
+import { REGEX } from "../constants.js";
 
 class StringUtils {
   /**
@@ -9,7 +9,7 @@ class StringUtils {
    * @returns String[]
    */
   static splitsAndTrim(str, delimiter) {
-    return str.split(delimiter).map(item => item.trim());
+    return str.split(delimiter).map((item) => item.trim());
   }
 
   /**
@@ -18,7 +18,7 @@ class StringUtils {
    * @returns String without multiple space
    */
   static removeMultiSpace(str) {
-    return str.replace(/\s+/g, ' ');
+    return str.replace(/\s+/g, " ");
   }
 
   /**
@@ -27,7 +27,7 @@ class StringUtils {
    * @returns String escaped
    */
   static escapeRegExp(str) {
-    return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    return str.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
   }
 
   /**
@@ -38,7 +38,7 @@ class StringUtils {
    * @param {string} [flags] - flags, default is 'gm'
    * @returns String replaced
    */
-  static replaceAll(str, find, replace, flags = 'gm') {
+  static replaceAll(str, find, replace, flags = "gm") {
     const pattern = this.escapeRegExp(find);
     return str.replace(new RegExp(pattern, flags), replace);
   }
@@ -50,10 +50,11 @@ class StringUtils {
    * @returns String without accents
    */
   static removeAccents(str) {
-    return str.normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/Đ/g, 'D');
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
   }
 
   /**
@@ -74,11 +75,17 @@ class StringUtils {
   }
 
   static isEmpty(str) {
-    return !str || str === '' || str === null || str === undefined || str.length === 0;
+    return (
+      !str ||
+      str === "" ||
+      str === null ||
+      str === undefined ||
+      str.length === 0
+    );
   }
 
   static isBlank(str) {
-    return (!str || /^\s*$/.test(str));
+    return !str || /^\s*$/.test(str);
   }
 
   static isBlankOrEmpty(str) {
@@ -86,41 +93,44 @@ class StringUtils {
   }
 
   static isLetter(str) {
-    if (typeof str !== 'string') {
+    if (typeof str !== "string") {
       return false;
     }
     return str.toLowerCase() !== str.toUpperCase();
   }
 
   static isDigit(str) {
-    if (typeof str !== 'string') {
+    if (typeof str !== "string") {
       return false;
     }
     return str.match(/^\d+$/) !== null;
   }
 
   static htmlToText(str) {
-    str = this.replaceAll(str, '&nbsp;', ' ')
-      .replace(/<img .*?>/g, '');
+    str = this.replaceAll(str, "&nbsp;", " ").replace(/<img .*?>/g, "");
     return convert(str, {
-      selectors: [
-        { selector: 'a', options: { ignoreHref: true } }
-      ]
+      selectors: [{ selector: "a", options: { ignoreHref: true } }],
     });
   }
 
   static keepLetterAndDigitOnly(str) {
-    ['\n', '\t', '\r', '\r\n'].forEach(item => {
-      str = StringUtils.replaceAll(str, item, ' ');
+    ["\n", "\t", "\r", "\r\n"].forEach((item) => {
+      str = StringUtils.replaceAll(str, item, " ");
     });
 
-    let result = '';
+    let result = "";
     for (let i = 0; i < str.length; i++) {
       const c = str[i];
-      if (this.isLetter(c) || this.isDigit(c) || c === ' ' || c === '.' || c === ',') {
+      if (
+        this.isLetter(c) ||
+        this.isDigit(c) ||
+        c === " " ||
+        c === "." ||
+        c === ","
+      ) {
         result += c;
       } else {
-        result += ' ';
+        result += " ";
       }
     }
 

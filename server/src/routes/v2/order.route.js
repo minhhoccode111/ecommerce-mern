@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getOne,
   getList,
@@ -8,9 +8,12 @@ import {
   rePayOrder,
   getAllOrders,
   createOrderByAdminOrStaff,
-  updateOrderByAdminOrStaff
-} from '../../controllers/orders.controller.js';
-import { isGuestOrAuthorized, isAdminOrStaff } from '../../middlewares/jwt-auth.js';
+  updateOrderByAdminOrStaff,
+} from "../../controllers/orders.controller.js";
+import {
+  isGuestOrAuthorized,
+  isAdminOrStaff,
+} from "../../middlewares/jwt-auth.js";
 
 const router = Router();
 
@@ -21,22 +24,22 @@ const router = Router();
  * Delete               : not allowed
  */
 
-router.route('/manager')
+router
+  .route("/manager")
   .get(isAdminOrStaff, getAllOrders)
   .post(isAdminOrStaff, createOrderByAdminOrStaff);
 
-router.route('/manager/:orderId')
+router
+  .route("/manager/:orderId")
   .patch(isAdminOrStaff, updateOrderByAdminOrStaff);
-
 
 /**
  * No Authorization
  */
 
-router.get('/', isGuestOrAuthorized, getList);
-router.post('/', isGuestOrAuthorized, createByUser);
-router.get('/re-pay/:orderId', isGuestOrAuthorized, rePayOrder);
-router.get('/:orderId', isGuestOrAuthorized, getOne);
-
+router.get("/", isGuestOrAuthorized, getList);
+router.post("/", isGuestOrAuthorized, createByUser);
+router.get("/re-pay/:orderId", isGuestOrAuthorized, rePayOrder);
+router.get("/:orderId", isGuestOrAuthorized, getOne);
 
 export default router;

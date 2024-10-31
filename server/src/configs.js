@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv';
-import { cleanEnv, str, email, json, port } from 'envalid';
+import * as dotenv from "dotenv";
+import { cleanEnv, str, email, json, port } from "envalid";
 
 dotenv.config();
 
 const env = cleanEnv(process.env, {
-  NODE_ENV: str({ choices: ['development', 'test', 'production', 'staging'] }),
+  NODE_ENV: str({ choices: ["development", "test", "production", "staging"] }),
   PORT: port({ default: 3001 }),
-  MONGO_URI: str({ example: 'mongodb://mongodb0.example.com:27017' }),
+  MONGO_URI: str({ example: "mongodb://mongodb0.example.com:27017" }),
 
   JWT_EXPIRES_IN: str({}),
   JWT_SECRET: str({}),
@@ -21,12 +21,14 @@ const env = cleanEnv(process.env, {
 
   MAILER_AUTH_PASS: str({}),
   MAILER_AUTH_USER: str({}),
-  MAILER_SERVICE: str({ default: 'gmail' }),
+  MAILER_SERVICE: str({ default: "gmail" }),
 
   VNPAY_SECRET: str({}),
   VNPAY_TMN_CODE: str({}),
-  VNPAY_URL: str({ default: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html' }),
-})
+  VNPAY_URL: str({
+    default: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+  }),
+});
 
 const configs = {
   port: env.PORT,
@@ -61,7 +63,6 @@ const configs = {
     tmnCode: env.VNPAY_TMN_CODE,
     url: env.VNPAY_URL,
   },
-
 };
 
 export default configs;

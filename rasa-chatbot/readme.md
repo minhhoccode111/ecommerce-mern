@@ -8,8 +8,7 @@ venv\Scripts\activate                     # activate environment
 pip install -r requirements.txt           # install package
 ```
 
-
-###  Rasa command
+### Rasa command
 
 ```bash
 rasa train            # Trains a Rasa model using your NLU data and stories.
@@ -19,7 +18,9 @@ rasa shell            # Loads your trained model and lets you talk to your assis
 ```
 
 ### Note
+
 On Debian you need the build-essential package:
+
 ```bash
 sudo apt install build-essential
 sudo apt install libpq-dev

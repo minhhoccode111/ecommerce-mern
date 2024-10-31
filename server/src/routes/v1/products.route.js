@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { allowImageMineTypes } from '../../constants.js';
+import { Router } from "express";
+import { allowImageMineTypes } from "../../constants.js";
 import {
   getAllProducts,
   getProductById,
@@ -11,18 +11,21 @@ import {
   addProductVariants,
   updateProductVariants,
   deleteProductVariants,
-  getFullAllProducts
-} from '../../controllers/products.controller.js';
-import { isAdmin, isAdminOrStaff } from '../../middlewares/jwt-auth.js';
-import  UploadUtils from '../../utils/UploadUtils.js';
+  getFullAllProducts,
+} from "../../controllers/products.controller.js";
+import { isAdmin, isAdminOrStaff } from "../../middlewares/jwt-auth.js";
+import UploadUtils from "../../utils/UploadUtils.js";
 
 const router = Router();
 const upload = UploadUtils.multerUpload(
-  '/products/',
+  "/products/",
   allowImageMineTypes,
-  21    // 21 = 1 thumbnail + 20 pictures
+  21, // 21 = 1 thumbnail + 20 pictures
 );
-const uploadFields = [{ name: 'thumbnail', maxCount: 1 }, { name: 'pictures', maxCount: 20 }];
+const uploadFields = [
+  { name: "thumbnail", maxCount: 1 },
+  { name: "pictures", maxCount: 20 },
+];
 
 /**
  * Authorization
@@ -31,33 +34,36 @@ const uploadFields = [{ name: 'thumbnail', maxCount: 1 }, { name: 'pictures', ma
  * Delete                 : only admin
  */
 
-router.get('/', getAllProducts);
-router.get('/all', getFullAllProducts);
-router.get('/specs', getProductSpecifications);
-router.get('/:identity', getProductById);
+router.get("/", getAllProducts);
+router.get("/all", getFullAllProducts);
+router.get("/specs", getProductSpecifications);
+router.get("/:identity", getProductById);
 
-router.post('/',
+router.post(
+  "/",
   isAdminOrStaff,
   upload.fields(uploadFields),
   UploadUtils.handleFilePath(uploadFields),
-  createProduct
+  createProduct,
 );
-router.patch('/:identity', isAdminOrStaff, updateProduct);
-router.delete('/:identity', isAdmin, deleteProduct);
-router.patch('/:identity/rate', rateProduct);
+router.patch("/:identity", isAdminOrStaff, updateProduct);
+router.delete("/:identity", isAdmin, deleteProduct);
+router.patch("/:identity/rate", rateProduct);
 
-router.post('/:identity/variants',
+router.post(
+  "/:identity/variants",
   isAdminOrStaff,
   upload.fields(uploadFields),
   UploadUtils.handleFilePath(uploadFields),
-  addProductVariants
+  addProductVariants,
 );
-router.patch('/:identity/variants/:sku',
+router.patch(
+  "/:identity/variants/:sku",
   isAdminOrStaff,
   upload.fields(uploadFields),
   UploadUtils.handleFilePath(uploadFields),
-  updateProductVariants
+  updateProductVariants,
 );
-router.delete('/:identity/variants/:sku', isAdmin, deleteProductVariants);
+router.delete("/:identity/variants/:sku", isAdmin, deleteProductVariants);
 
 export default router;

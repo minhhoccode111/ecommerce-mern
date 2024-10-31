@@ -20,7 +20,7 @@ import { syncCart } from './redux/slices/cartSlice';
 import { sendTrackingData } from './redux/slices/userBehaviorSlice';
 
 // eslint-disable-next-line prettier/prettier
-const isDevMode = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development');
+const isDevMode = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
 
 // ----------------------------------------------------------------------
 

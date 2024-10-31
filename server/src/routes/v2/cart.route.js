@@ -1,12 +1,15 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   getCartItems,
   addItem,
   updateItemQty,
   deleteItem,
   cleanCart,
-} from '../../controllers/cart.controller.js';
-import { isAuthorized, isGuestOrAuthorized } from '../../middlewares/jwt-auth.js';
+} from "../../controllers/cart.controller.js";
+import {
+  isAuthorized,
+  isGuestOrAuthorized,
+} from "../../middlewares/jwt-auth.js";
 
 const router = Router();
 
@@ -15,13 +18,15 @@ const router = Router();
  * all routes : any user
  */
 
-router.route('/').post(isGuestOrAuthorized, getCartItems)
+router
+  .route("/")
+  .post(isGuestOrAuthorized, getCartItems)
   //.post(isAuthorized, addItem)
-  .patch(isAuthorized, updateItemQty)
+  .patch(isAuthorized, updateItemQty);
 
-router.route('/add').post(isAuthorized, addItem);
+router.route("/add").post(isAuthorized, addItem);
 
-router.route('/:productId/:sku').delete(isAuthorized, deleteItem);
-router.route('/clean').delete(isAuthorized, cleanCart);
+router.route("/:productId/:sku").delete(isAuthorized, deleteItem);
+router.route("/clean").delete(isAuthorized, cleanCart);
 
 export default router;

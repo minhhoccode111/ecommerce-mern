@@ -1,13 +1,18 @@
-import { Router } from 'express';
-import { allowImageMineTypes } from '../../constants.js';
+import { Router } from "express";
+import { allowImageMineTypes } from "../../constants.js";
 import {
-  createBrand, deleteBrand, getBrand, getBrands, hiddenBrand, updateBrand
-} from '../../controllers/brands.controller.js';
-import { isAdmin, isAdminOrStaff } from '../../middlewares/jwt-auth.js';
-import  UploadUtils from '../../utils/UploadUtils.js';
+  createBrand,
+  deleteBrand,
+  getBrand,
+  getBrands,
+  hiddenBrand,
+  updateBrand,
+} from "../../controllers/brands.controller.js";
+import { isAdmin, isAdminOrStaff } from "../../middlewares/jwt-auth.js";
+import UploadUtils from "../../utils/UploadUtils.js";
 
 const router = Router();
-const upload = UploadUtils.multerUpload('/brands/', allowImageMineTypes);
+const upload = UploadUtils.multerUpload("/brands/", allowImageMineTypes);
 
 /**
  * Authorization
@@ -16,27 +21,28 @@ const upload = UploadUtils.multerUpload('/brands/', allowImageMineTypes);
  * Delete               : only admin
  */
 
-router.route('/')
+router
+  .route("/")
   .get(getBrands)
   .post(
     isAdminOrStaff,
-    upload.single('image'),
-    UploadUtils.handleFilePath('image'),
-    createBrand
+    upload.single("image"),
+    UploadUtils.handleFilePath("image"),
+    createBrand,
   );
 
 /* identity is _id or slug */
-router.route('/:identity')
+router
+  .route("/:identity")
   .get(getBrand)
   .patch(
     isAdminOrStaff,
-    upload.single('image'),
-    UploadUtils.handleFilePath('image'),
-    updateBrand
+    upload.single("image"),
+    UploadUtils.handleFilePath("image"),
+    updateBrand,
   )
   .delete(isAdmin, deleteBrand);
 
-router.patch('/:identity/hide', hiddenBrand);
-
+router.patch("/:identity/hide", hiddenBrand);
 
 export default router;

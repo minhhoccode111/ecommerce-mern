@@ -1,9 +1,9 @@
-import { ValidationError } from 'express-validation';
-import httpStatus from 'http-status';
-import ApiErrorUtils from '../utils/ApiErrorUtils.js';
-import UploadUtils from '../utils/UploadUtils.js';
-import SlackUtils from '../utils/SlackUtils.js';
-import configs from '../configs.js';
+import { ValidationError } from "express-validation";
+import httpStatus from "http-status";
+import ApiErrorUtils from "../utils/ApiErrorUtils.js";
+import UploadUtils from "../utils/UploadUtils.js";
+import SlackUtils from "../utils/SlackUtils.js";
+import configs from "../configs.js";
 
 export default {
   converter,
@@ -11,20 +11,19 @@ export default {
   handler,
 };
 
-
 /**
  * Converts errors to ApiErrorUtils
  * @param {*} err - Error object
  * @param {*} req - Express request object
  * @param {*} res - Express response object
- * @param {*} _ 
+ * @param {*} _
  */
 function converter(err, req, res, _) {
   let convertedError = err;
 
   if (err instanceof ValidationError) {
     convertedError = new ApiErrorUtils({
-      message: 'Validation Error',
+      message: "Validation Error",
       errors: err.errors,
       status: err.status || httpStatus.INTERNAL_SERVER_ERROR,
       stack: err.stack,
@@ -40,7 +39,6 @@ function converter(err, req, res, _) {
   handler(convertedError, req, res);
 }
 
-
 /**
  * Handles 404 errors.
  * @param {*} req - Express request object
@@ -48,19 +46,18 @@ function converter(err, req, res, _) {
  */
 function notFound(req, res) {
   const err = new ApiErrorUtils({
-    message: 'Not found',
+    message: "Not found",
     status: httpStatus.NOT_FOUND,
   });
   handler(err, req, res);
 }
-
 
 /**
  * Handles errors
  * @param {*} err - Error object
  * @param {*} req - Express request object
  * @param {*} res - Express response object
- * @param {*} _ 
+ * @param {*} _
  */
 function handler(err, req, res, _) {
   const response = {
@@ -76,7 +73,7 @@ function handler(err, req, res, _) {
   let mgs = `❌ A Request from ip: *${req.ipv4}*, path: *${req.originalUrl}* has error: \`${response.message}\``;
   mgs += `\n\`\`\`${JSON.stringify(response, null, 2)}\`\`\``;
 
-  SlackUtils.sendMessage(mgs, 'C03FMRF45K7');
+  SlackUtils.sendMessage(mgs, "C03FMRF45K7");
 
   if (configs.isProd) {
     delete response.stack;
@@ -86,7 +83,7 @@ function handler(err, req, res, _) {
   // clear uploaded files
   UploadUtils.clearUploadFile(req);
 
-  res.set('Content-Type', 'application/json')
+  res.set("Content-Type", "application/json");
   res.status(response.code);
   res.json(response);
   res.end();

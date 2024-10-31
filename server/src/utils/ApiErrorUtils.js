@@ -32,10 +32,10 @@ class ApiErrorUtils extends ExtendableError {
   }
 
   /**
-   * Simple helper method to create an error ins of type APIError.  
+   * Simple helper method to create an error ins of type APIError.
    * @param {string} message  - Error message.
    * @param {number} status   - HTTP status code of error.
-   * @returns 
+   * @returns
    */
   static simple(message, status = 500) {
     return new ApiErrorUtils({ message, status });

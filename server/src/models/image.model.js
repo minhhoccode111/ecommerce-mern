@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import removeMultiSpace from './plugins/remove-multi-space.js';
+import mongoose from "mongoose";
+import removeMultiSpace from "./plugins/remove-multi-space.js";
 
 const imageSchema = mongoose.Schema(
   {
@@ -11,10 +11,10 @@ const imageSchema = mongoose.Schema(
     hasMedium: { type: Boolean, default: false },
     hasLarge: { type: Boolean, default: false },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
 imageSchema.plugin(removeMultiSpace);
 
-const imageModel = mongoose.model('Image', imageSchema);
+const imageModel = mongoose.model("Image", imageSchema);
 export default imageModel;

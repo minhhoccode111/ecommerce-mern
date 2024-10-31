@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
-import slugGenerator from 'mongoose-slug-updater';
-import { DISCOUNT_CONS } from '../constants.js';
-import removeMultiSpace from './plugins/remove-multi-space.js';
+import mongoose from "mongoose";
+import slugGenerator from "mongoose-slug-updater";
+import { DISCOUNT_CONS } from "../constants.js";
+import removeMultiSpace from "./plugins/remove-multi-space.js";
 
 const discountSchema = mongoose.Schema(
   {
@@ -19,22 +19,23 @@ const discountSchema = mongoose.Schema(
     unlimitedQty: { type: Boolean, required: false, default: false },
     discount: { type: Number, required: true, default: 0 },
     discountType: {
-      type: String, trim: true,
+      type: String,
+      trim: true,
       enum: Object.values(DISCOUNT_CONS.TYPE),
-      default: DISCOUNT_CONS.TYPE.PERCENT
+      default: DISCOUNT_CONS.TYPE.PERCENT,
     },
 
     minimumTotal: { type: Number, required: false, default: 0 },
     maximumApplied: { type: Number, required: false, default: 0 },
 
     image: { type: String, trim: true, required: false },
-    isHide: { type: Boolean, required: true, default: false }
+    isHide: { type: Boolean, required: true, default: false },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 discountSchema.plugin(slugGenerator);
 discountSchema.plugin(removeMultiSpace);
 
-const discountModel = mongoose.model('Discount', discountSchema);
+const discountModel = mongoose.model("Discount", discountSchema);
 export default discountModel;

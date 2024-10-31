@@ -10,9 +10,9 @@ class ResponseUtils {
   static sendJson(res, statusCode, message, data = null, extras = {}) {
     const responseData = {
       success: statusCode >= 200 && statusCode < 300, // 200-299 Successful responses
-      message
+      message,
     };
-    res.set('Content-Type', 'application/json');
+    res.set("Content-Type", "application/json");
 
     Object.assign(responseData, data && { data });
     res.json({ ...responseData, ...extras });
@@ -37,34 +37,34 @@ class ResponseUtils {
   static status203(res, message) {
     this.sendJson(res, 204, message);
   }
-  /** 
+  /**
    * Send **204 No Content** success status response
    */
   static status204(res, message) {
     this.sendJson(res, 204, message);
   }
-  /** 
+  /**
    * Send **400 Bad Request** response(validation Error Response)
    */
   static status400(res, message, data) {
     this.sendJson(res, 400, message, data);
   }
-  /** 
+  /**
    * Send ** 401 Unauthorized ** client error status response
    */
-  static status401(res, message = 'Auth failed!') {
+  static status401(res, message = "Auth failed!") {
     this.sendJson(res, 401, message);
   }
-  /** 
+  /**
    * Send **404 Not Found** client error response
    */
-  static status404(res, message = 'Not found!') {
+  static status404(res, message = "Not found!") {
     this.sendJson(res, 404, message);
   }
-  /** 
+  /**
    * Send **405 Method Not Allowed response** client error response
    */
-  static status405(res, message = 'Method not allowed!') {
+  static status405(res, message = "Method not allowed!") {
     this.sendJson(res, 405, message);
   }
   /**
